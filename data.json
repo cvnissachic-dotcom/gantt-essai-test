@@ -1,0 +1,60 @@
+{
+  "month": 6,
+  "year": 2026,
+  "employees": [
+    {
+      "nom": "Fabio",
+      "debut": "2026-06-01",
+      "peFin": "2026-06-15",
+      "dernierDelai": "2026-06-13"
+    },
+    {
+      "nom": "Denzel",
+      "debut": "2026-06-01",
+      "peFin": "2026-06-15",
+      "dernierDelai": "2026-06-13"
+    },
+    {
+      "nom": "Léna",
+      "debut": "2026-06-01",
+      "peFin": "2026-06-11",
+      "dernierDelai": "2026-06-13"
+    },
+    {
+      "nom": "Inès",
+      "debut": "2026-05-28",
+      "peFin": "2026-06-11",
+      "dernierDelai": "2026-06-09"
+    },
+    {
+      "nom": "Julie",
+      "debut": "2026-05-30",
+      "peFin": "2026-06-13",
+      "dernierDelai": "2026-06-11"
+    },
+    {
+      "nom": "Nicolas",
+      "debut": "2026-05-29",
+      "peFin": "2026-06-12",
+      "dernierDelai": "2026-06-09"
+    },
+    {
+      "nom": "Abir",
+      "debut": "2026-05-19",
+      "peFin": "2026-06-02",
+      "dernierDelai": "2026-06-30"
+    },
+    {
+      "nom": "Nivès",
+      "debut": "2026-06-23",
+      "peFin": "2026-07-02",
+      "dernierDelai": "2026-06-30"
+    },
+    {
+      "nom": "Louane",
+      "debut": "2026-07-01",
+      "peFin": "2026-07-15",
+      "dernierDelai": "2026-07-13"
+    }
+  ]
+}

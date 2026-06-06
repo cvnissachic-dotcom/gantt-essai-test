@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Périodes d'essai - Nissa Chic</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; }
+    .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .title-section { margin-bottom: 2rem; }
+    .title-main { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+    .gantt { border: 0.5px solid #ddd; border-radius: 8px; overflow: auto; height: 600px; }
+    .gantt-row { display: flex; border-bottom: 0.5px solid #ddd; min-height: 60px; }
+    .gantt-row:last-child { border-bottom: none; }
+    .gantt-label { flex: 0 0 120px; padding: 12px; border-right: 0.5px solid #ddd; font-weight: 600; font-size: 14px; color: #1a1a1a; background: #f9f9f9; display: flex; align-items: center; position: sticky; left: 0; z-index: 2; }
+    .gantt-content { display: flex; flex: 1; position: relative; min-width: 900px; }
+    .gantt-day { flex: 0 0 30px; border-right: 0.5px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #666; background: #f9f9f9; position: sticky; top: 0; z-index: 1; }
+    .gantt-cell { flex: 0 0 30px; border-right: 0.5px solid #ddd; position: relative; }
+    .bar { position: absolute; top: 8px; bottom: 8px; left: 2px; right: 2px; background: #378add; opacity: 0.85; border-radius: 3px; }
+    .milestone { position: absolute; left: 50%; transform: translateX(-50%); width: 3px; height: 44px; background: #e74c3c; border-radius: 1px; top: 50%; transform: translateX(-50%) translateY(-50%); }
+    .milestone::after { content: ''; position: absolute; width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; left: -2.5px; top: -4px; box-shadow: 0 0 0 2px white; }
+    .milestone-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: 600; color: #e74c3c; white-space: nowrap; pointer-events: none; background: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 0 0 0.5px #ddd; }
+    .header-corner { flex: 0 0 120px; background: #f9f9f9; border-right: 0.5px solid #ddd; position: sticky; top: 0; left: 0; z-index: 3; }
+    .legend { display: flex; gap: 32px; margin-top: 2rem; font-size: 13px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-box { width: 20px; height: 12px; background: #378add; border-radius: 2px; }
+    .legend-mark { width: 3px; height: 14px; background: #e74c3c; border-radius: 1px; position: relative; }
+    .legend-mark::after { content: ''; position: absolute; width: 6px; height: 6px; background: #e74c3c; border-radius: 50%; left: -1.5px; top: -1px; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a1a; color: #eee; }
+      .container { }
+      .title-main { color: #fff; }
+      .gantt { border-color: #444; }
+      .gantt-row { border-bottom-color: #333; }
+      .gantt-label { background: #2a2a2a; border-right-color: #333; color: #eee; }
+      .gantt-content { }
+      .gantt-day { background: #2a2a2a; border-right-color: #333; color: #aaa; }
+      .gantt-cell { border-right-color: #333; }
+      .header-corner { background: #2a2a2a; border-right-color: #333; }
+      .legend { }
+      .milestone-label { background: #2a2a2a; box-shadow: 0 0 0 0.5px #444; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-section">
+      <div class="title-main" id="title">Chargement...</div>
+    </div>
+
+    <div class="gantt">
+      <div class="gantt-row">
+        <div class="header-corner"></div>
+        <div class="gantt-content" id="days-row"></div>
+      </div>
+      <div id="employees-rows"></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-box"></div>
+        <span>Période d'essai</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-mark"></div>
+        <span>Dernier délai pour annoncer</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      try {
+        const response = await fetch('data.json');
+        const { month, year, employees } = await response.json();
+        
+        const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        document.getElementById('title').textContent = `${monthNames[month - 1].charAt(0).toUpperCase() + monthNames[month - 1].slice(1)} ${year} — Période d'essai`;
+        
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const daysRow = document.getElementById('days-row');
+        let daysHTML = '';
+        for (let day = 1; day <= daysInMonth; day++) {
+          daysHTML += `<div class="gantt-day">${day}</div>`;
+        }
+        daysRow.innerHTML = daysHTML;
+
+        function formatDayAndDate(dateStr) {
+          const d = new Date(dateStr + 'T00:00:00');
+          const jours = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'];
+          const jour = jours[d.getDay()];
+          const date = d.getDate();
+          return `${jour} ${date}`;
+        }
+
+        const employeesRows = document.getElementById('employees-rows');
+        employeesRows.innerHTML = employees.map(emp => {
+          const debut = new Date(emp.debut + 'T00:00:00');
+          const peFin = new Date(emp.peFin + 'T00:00:00');
+          const dernierDelai = new Date(emp.dernierDelai + 'T00:00:00');
+          
+          const monthStart = new Date(year, month - 1, 1);
+          const monthEnd = new Date(year, month, 0);
+          
+          const startDay = debut >= monthStart ? debut.getDate() : 1;
+          const endDay = peFin <= monthEnd ? peFin.getDate() : daysInMonth;
+          const delaiDay = (dernierDelai >= monthStart && dernierDelai <= monthEnd) ? dernierDelai.getDate() : null;
+          
+          const isInMonth = !(peFin < monthStart || debut > monthEnd);
+          
+          let html = `<div class="gantt-row">
+            <div class="gantt-label">${emp.nom}</div>
+            <div class="gantt-content">`;
+          
+          for (let day = 1; day <= daysInMonth; day++) {
+            const isInPeriod = day >= startDay && day <= endDay && isInMonth;
+            const isMilestoneDay = day === delaiDay;
+            
+            html += `<div class="gantt-cell">`;
+            if (isInPeriod) {
+              html += `<div class="bar"></div>`;
+            }
+            if (isMilestoneDay) {
+              html += `<div class="milestone"><div class="milestone-label">${formatDayAndDate(emp.dernierDelai)}</div></div>`;
+            }
+            html += `</div>`;
+          }
+          
+          html += `</div></div>`;
+          return html;
+        }).join('');
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        document.getElementById('title').textContent = 'Erreur lors du chargement des données';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
